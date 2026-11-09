@@ -78,10 +78,11 @@ Open `config.json` and enter the full text of each warning you want to dismiss:
 
 ```json
 {
-  "similarityThreshold": 0.90,
+  "similarityThreshold": 0.9,
   "dialogTexts": [
     "Some numerical data within the imported file was out of range. This numerical data has been truncated.",
-    "Import detected no valid elements in the file's Paper space. Do you want to import from the Model space?"
+    "Import detected no valid elements in the file's Paper space. Do you want to import from the Model space?",
+    "Elements Lost on Import. Some elements were lost during import. ActiveX and some proprietary components cannot be imported."
   ]
 }
 ```
