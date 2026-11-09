@@ -1,11 +1,8 @@
-
 # RevitDialogDismisser
 
-**Automatically dismiss selected Autodesk Revit warning dialogs using configurable text matching.**
+RevitDialogDismisser is a small Windows utility for closing repetitive Autodesk Revit warning dialogs. It watches running Revit instances and dismisses only the messages listed in `config.json`.
 
-RevitDialogDismisser is a lightweight Windows utility that monitors running Autodesk Revit instances and automatically dismisses warning dialogs specified in `config.json`.
-
-It runs independently of Revit, requiring **no add-in installation**, and attempts to close matching dialogs through the equivalent of the window's **X** button without automatically selecting **Yes** or **No**.
+It runs as a separate application, not a Revit add-in. When a message matches, it requests the dialog's normal **Close (X)** action. It does not select **Yes** or **No**.
 
 When opening a godawful model filled with cad, pdf, ifc, and all manners of error-filled cancerous files, this helps in speeding up the model loading.
 
@@ -19,28 +16,27 @@ When opening a godawful model filled with cad, pdf, ifc, and all manners of erro
 - **Background monitoring** — Continuously checks for matching dialogs while the utility is running.
 - **Safety checks** — Helps prevent unrelated dialogs and Revit's main window from being closed.
 
-## Installation
+## Download & Installation
 
-1. Download the latest version from [Releases](../../releases).
-2. Extract both files into the same directory:
+Get the latest build from [Releases](../../releases).
 
-   ```text
-   RevitDialogDismisser/
-   ├── RevitDialogDismisser.exe
-   └── config.json
-   ```
-3. Run `RevitDialogDismisser.exe`.
-4. Keep the console window open while working in Revit. Press **Ctrl+C** to stop monitoring.
+| Release                | Requirement                                                                                                 |
+| ---------------------- | ----------------------------------------------------------------------------------------------------------- |
+| **Standalone**   | Windows x64. No separate .NET installation needed.                                                          |
+| **RequiresNET8** | Windows x64 with [.NET 8 Desktop Runtime](https://dotnet.microsoft.com/en-us/download/dotnet/8.0) installed. |
 
-**Requirements:** Windows x64 and Autodesk Revit.
+Extract the ZIP. Keep both files together:
 
-Self-contained releases do not require a separate .NET installation. Framework-dependent releases require the [Microsoft .NET 8 Desktop Runtime (Windows x64)](https://dotnet.microsoft.com/en-us/download/dotnet/8.0).
+```text
+RevitDialogDismisser.exe
+config.json
+```
+
+Run `RevitDialogDismisser.exe` and leave the console open while using Revit. Press **Ctrl+C** in the console to stop it.
 
 ## Configuration
 
-Open `config.json` with any text editor.
-
-Example:
+Open `config.json` and enter the full text of each warning you want to dismiss:
 
 ```json
 {
@@ -52,46 +48,63 @@ Example:
 }
 ```
 
-**Configuration parameters**
+- `dialogTexts` is the list of permitted warning messages. Add another quoted string, separated by a comma, for each new warning.
+- `similarityThreshold` accepts values from `0.90` to `1.00`. Higher values require a closer text match.
 
-- `similarityThreshold` — Controls text matching sensitivity, between `0.90` and `1.00`. Higher values require closer matches.
-- `dialogTexts` — An array containing the complete warning messages you want automatically dismissed.
+Changes are picked up automatically when you save the file. The matcher ignores differences in capitalization, punctuation and spacing, and allows minor text variations. It also checks for changes in critical words, numbers and the direction of Paper-space/Model-space prompts.
 
-To add another warning, insert its full message as a new quoted string, separated by commas.
+**Only add messages you are comfortable dismissing without reviewing them.**
 
-The utility automatically reloads the configuration whenever the file is saved.
+## Build from source
 
-### How matching works
+Requires Windows and the [.NET 8 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/8.0). Run the commands below from the folder containing `RevitDialogDismisser.csproj`.
 
-The application compares each configured warning against the text detected in Revit's dialog windows.
-
-It normalizes capitalization, punctuation, and spacing, then uses fuzzy matching to accommodate minor wording variations.
-
-Additional checks help distinguish messages that look similar but have different meanings, such as reversed Paper-space and Model-space questions.
-
-## Building from Source
-
-Requires Windows and the [.NET 8 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/8.0).
-
-The source project is currently named `RevitDialogueWatcher.csproj`. To publish the executable using the new name:
+To run the built-in text-matching tests:
 
 ```powershell
-dotnet publish .\RevitDialogueWatcher.csproj -c Release -r win-x64 --self-contained true -p:AssemblyName=RevitDialogDismisser -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:PublishTrimmed=false -p:DebugType=none -p:DebugSymbols=false -o .\publish
+dotnet run --project .\RevitDialogDismisser.csproj -- --self-test
 ```
 
-For distribution, place only `RevitDialogDismisser.exe` and `config.json` in a clean folder.
+### Publish a standalone EXE
 
-You can also run the built-in text-matching tests:
+The following builds a compressed, self-contained Windows x64 EXE. The release files go directly into `bin\Release\publish`; no extra distribution folder is needed.
 
 ```powershell
-dotnet run --project .\RevitDialogueWatcher.csproj -- --self-test
+Remove-Item .\bin\Release\publish -Recurse -Force -ErrorAction SilentlyContinue
+
+dotnet publish .\RevitDialogDismisser.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:EnableCompressionInSingleFile=true -p:PublishReadyToRun=false -p:PublishTrimmed=false -p:DebugType=none -p:DebugSymbols=false -o .\bin\Release\publish
+
+if ($LASTEXITCODE -ne 0) { throw "Publish failed" }
+Copy-Item .\config.json .\bin\Release\publish\config.json -Force
 ```
 
-## Limitations
+The files to distribute are:
 
-- Some Revit dialogs cannot be dismissed through the window's close/cancel operation. The utility does not force a Yes or No response.
-- Fuzzy matching is not perfect. Add only warnings you are comfortable automatically dismissing.
-- Automatically dismissing warnings does not resolve underlying CAD import problems.
-- Behavior may vary depending on the Revit version and Windows permissions.
+```text
+bin\Release\publish\
+├── RevitDialogDismisser.exe
+└── config.json
+```
 
-**Disclaimer:** This is an independent utility and is not affiliated with or endorsed by Autodesk. Revit is a trademark of Autodesk, Inc.
+To keep `config.json` editable beside the EXE, make sure your `.csproj` includes this item:
+
+```xml
+<ItemGroup>
+  <None Update="config.json">
+    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+  </None>
+</ItemGroup>
+```
+
+For a smaller **framework-dependent** build, change `--self-contained true` to `--self-contained false`, remove `-p:IncludeNativeLibrariesForSelfExtract=true` if desired, and use a separate output folder such as `bin\Release\publish-net8`. That build requires .NET 8 Desktop Runtime on the recipient's PC.
+
+## Notes
+
+- A dialog that cannot be cancelled may stay open. The watcher will not choose Yes or No as a fallback.
+- Matching is intentionally limited to dialogs belonging to `Revit.exe`, but fuzzy matching is not infallible.
+- Closing a warning does not fix the underlying issue in an imported or linked CAD file.
+- Test new configuration entries before relying on them during production work.
+
+This project is independent of Autodesk and is not affiliated with or endorsed by Autodesk.
