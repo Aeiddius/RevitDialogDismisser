@@ -16,6 +16,44 @@ When opening a godawful model filled with cad, pdf, ifc, and all manners of erro
 - **Background monitoring** — Continuously checks for matching dialogs while the utility is running.
 - **Safety checks** — Helps prevent unrelated dialogs and Revit's main window from being closed.
 
+## Revit Compatibility
+
+| Revit Version | Test Status         |
+| ------------- | ------------------- |
+| Revit 2027    | ⚪ Not Tested       |
+| Revit 2026    | ⚪ Not Tested       |
+| Revit 2025    | ✅ Tested & Working |
+| Revit 2024    | ✅ Tested & Working |
+| Revit 2023    | ⚪ Not Tested       |
+
+**Note:** Compatibility with other Revit versions is not yet verified. The utility may work with untested versions, but functionality is not guaranteed.
+
+
+## Default Warnings
+
+RevitDialogDismisser is configured to automatically dismiss the following Revit warnings:
+
+### 1. Numerical Data Truncation
+
+> Some numerical data within the imported file was out of range. This numerical data has been truncated.
+
+[Autodesk Support Article](https://www.autodesk.com/support/technical/article/caas/sfdcarticles/sfdcarticles/Revit-Importing-a-DWG-into-Revit-prompts-warning-Some-numerical-data-within-the-imported-file-was-out-of-range-This-numerical-data-has-been-truncated.html)
+
+### 2. Invalid Paper Space Elements
+
+> Import detected no valid elements in the file's Paper space. Do you want to import from the Model space?
+
+[Autodesk Support Article](https://www.autodesk.com/support/technical/article/caas/sfdcarticles/sfdcarticles/Import-detected-no-valid-elements-when-opening-a-model-in-Revit.html)
+
+### 3. Elements Lost on Import
+
+> Some elements were lost during import. ActiveX and some proprietary components cannot be imported.
+
+[Autodesk Support Article](https://www.autodesk.com/support/technical/article/caas/sfdcarticles/sfdcarticles/Error-ActiveX-and-some-proprietary-components-cannot-be-imported-while-linking-or-importing-a-DWG-in-Revi.html)
+
+Warnings can be added or removed through `config.json` without recompiling.
+
+
 ## Download & Installation
 
 Get the latest build from [Releases](../../releases).
