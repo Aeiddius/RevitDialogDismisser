@@ -1,0 +1,7 @@
+{
+  "similarityThreshold": 0.9,
+  "dialogTexts": [
+    "Some numerical data within the imported file was out of range. This numerical data has been truncated.",
+    "Import detected no valid elements in the file's Paper space. Do you want to import from the Model space?"
+  ]
+}

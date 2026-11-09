@@ -1,0 +1,37 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net8.0-windows</TargetFramework>
+		<UseWPF>true</UseWPF>
+
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+
+		<ApplicationIcon>app.ico</ApplicationIcon>
+
+		<RuntimeIdentifier>win-x64</RuntimeIdentifier>
+
+		<!-- Keep single EXE -->
+		<PublishSingleFile>true</PublishSingleFile>
+
+		<!-- Small output: framework-dependent -->
+		<SelfContained>false</SelfContained>
+
+		<!-- MUST be false for framework-dependent single-file publish -->
+		<EnableCompressionInSingleFile>false</EnableCompressionInSingleFile>
+
+		<!-- Helps avoid extra size -->
+		<PublishReadyToRun>false</PublishReadyToRun>
+		<DebugSymbols>false</DebugSymbols>
+		<DebugType>none</DebugType>
+		<Optimize>true</Optimize>
+	</PropertyGroup>
+	<ItemGroup>
+	  <None Remove="Program.txt" />
+	</ItemGroup>
+	<ItemGroup>
+	  <None Update="config.json">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
+	</ItemGroup>
+</Project>
